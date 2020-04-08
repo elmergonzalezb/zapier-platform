@@ -1045,7 +1045,7 @@ The response object returned by `z.request([url], options)` supports the followi
 * `body`: A stream available only if you provide `options.raw = true`.
 * `headers`: Response headers object. The header keys are all lower case.
 * `getHeader(key)`: Retrieve response header, case insensitive: `response.getHeader('My-Header')`
-* `throwForStatus()`: Throw error if final `response.status > 300`. Will throw `z.error.RefreshAuthError` if 401.
+* `throwForStatus()`: Throw error if final `response.status >= 400 && response.status < 600`.
 * `request`: The original request options object (see above).
 
 ```js

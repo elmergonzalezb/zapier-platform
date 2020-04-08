@@ -113,7 +113,7 @@ const handleCreateWithSession = (
       }
     })
     .then((response) => {
-      if (response.status >= 300) {
+      if (response.status >= 400 && response.status < 600) {
         throw new Error('Unable to start an upload session.')
       }
 

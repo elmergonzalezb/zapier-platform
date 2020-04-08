@@ -8,7 +8,7 @@ const listExample = (z, bundle) => {
   return z
     .request('https://example.com/api/v2/recipes.json', customHttpOptions)
     .then(response => {
-      if (response.status >= 300) {
+      if (response.status >= 400 && response.status < 600) {
         throw new Error(`Unexpected status code ${response.status}`);
       }
 

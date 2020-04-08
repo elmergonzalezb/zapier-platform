@@ -17,7 +17,7 @@ const addSortingParams = (request /*, z */) => {
 // HTTP after middleware that checks for errors in the response.
 const checkForErrors = (response, z) => {
   // If we get a bad status code, throw an error. This will halt the zap.
-  if (response.status >= 300) {
+  if (response.status >= 400 && response.status < 600) {
     throw new z.errors.HaltedError(
       `Unexpected status code ${response.status} from ${response.request.url}`
     );

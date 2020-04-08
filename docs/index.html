@@ -3320,7 +3320,7 @@ zapier env 1.0.0
   <span class="hljs-keyword">return</span> z
     .request(<span class="hljs-string">&apos;https://example.com/api/v2/recipes.json&apos;</span>, customHttpOptions)
     .then(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> {
-      <span class="hljs-keyword">if</span> (response.status &gt;= <span class="hljs-number">300</span>) {
+      <span class="hljs-keyword">if</span> (response.status &gt;= <span class="hljs-number">400</span> &amp;&amp; response.status &lt; <span class="hljs-number">600</span>) {
         <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">`Unexpected status code <span class="hljs-subst">${response.status}</span>`</span>);
       }
 
@@ -3532,7 +3532,7 @@ zapier env 1.0.0
 <li><code>body</code>: A stream available only if you provide <code>options.raw = true</code>.</li>
 <li><code>headers</code>: Response headers object. The header keys are all lower case.</li>
 <li><code>getHeader(key)</code>: Retrieve response header, case insensitive: <code>response.getHeader(&apos;My-Header&apos;)</code></li>
-<li><code>throwForStatus()</code>: Throw error if final <code>response.status &gt; 300</code>. Will throw <code>z.error.RefreshAuthError</code> if 401.</li>
+<li><code>throwForStatus()</code>: Throw error if final <code>response.status &gt;= 400 &amp;&amp; response.status &lt; 600</code>.</li>
 <li><code>request</code>: The original request options object (see above).</li>
 </ul>
     </div>

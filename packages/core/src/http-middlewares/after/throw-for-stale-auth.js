@@ -6,12 +6,12 @@ const errors = require('../../errors');
  * The server-side will raise `RefreshAuthError` when `autoRefresh === true`.
  * Once we always run `throwForStatus` or a custom `afterResponse`, we can drop `throwForStaleAuth`.
  */
-const throwForStaleAuth = resp => {
-  if (resp.status === 401) {
-    throw new errors.ResponseError(resp);
+const throwForStaleAuth = response => {
+  if (response.status === 401) {
+    throw new errors.ResponseError(response);
   }
 
-  return resp;
+  return response;
 };
 
 module.exports = throwForStaleAuth;

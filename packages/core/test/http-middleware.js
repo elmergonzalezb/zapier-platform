@@ -1,12 +1,16 @@
 'use strict';
 
 const should = require('should');
+const errors = require('../src/errors');
+const createAppRequestClient = require('../src/tools/create-app-request-client');
+const createInput = require('../src/tools/create-input');
 const request = require('../src/tools/request-client');
 
 const prepareRequest = require('../src/http-middlewares/before/prepare-request');
 const addBasicAuthHeader = require('../src/http-middlewares/before/add-basic-auth-header');
 const addDigestAuthHeader = require('../src/http-middlewares/before/add-digest-auth-header');
 const prepareResponse = require('../src/http-middlewares/after/prepare-response');
+const throwForStatus = require('../src/http-middlewares/after/throw-for-status');
 const applyMiddleware = require('../src/middleware');
 const oauth1SignRequest = require('../src/http-middlewares/before/oauth1-sign-request');
 const { parseDictHeader } = require('../src/tools/http');
@@ -407,5 +411,60 @@ describe('http oauth1SignRequest before middelware', () => {
       oauth_version: '1.0A',
       realm: 'a_realm'
     });
+  });
+});
+
+describe('http throwForStatus after middleware', () => {
+  it('throws for 400 >= status < 600', async () => {
+    const testLogger = () => Promise.resolve({});
+    const input = createInput({}, {}, testLogger);
+    const request = createAppRequestClient(input);
+
+    const response = await request({ url: 'https://httpbin.org/status/400' });
+
+    (() => {
+      throwForStatus(response);
+    }).should.throw(errors.ResponseError, {
+      name: 'ResponseError',
+      doNotContextify: true,
+      message:
+        '{"status":400,"headers":{"content-type":"text/html; charset=utf-8"},"content":"","request":{"url":"https://httpbin.org/status/400"}}'
+    });
+  });
+  it('does not throw for redirects (which we follow)', async () => {
+    const testLogger = () => Promise.resolve({});
+    const input = createInput({}, {}, testLogger);
+    const request = createAppRequestClient(input);
+
+    const response = await request({
+      url: 'https://httpbin.org/redirect-to',
+      params: {
+        url: 'https://httpbin.org/status/200'
+      }
+    });
+
+    response.status.should.equal(200);
+  });
+  it('does not throw for 2xx', async () => {
+    const testLogger = () => Promise.resolve({});
+    const input = createInput({}, {}, testLogger);
+    const request = createAppRequestClient(input);
+
+    const response = await request({
+      url: 'https://httpbin.org/status/200'
+    });
+
+    response.status.should.equal(200);
+  });
+  it('does not throw for >= 600', async () => {
+    const testLogger = () => Promise.resolve({});
+    const input = createInput({}, {}, testLogger);
+    const request = createAppRequestClient(input);
+
+    const response = await request({
+      url: 'https://httpbin.org/status/600'
+    });
+
+    response.status.should.equal(600);
   });
 });
