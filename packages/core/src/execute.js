@@ -1,17 +1,13 @@
 'use strict';
 
-const querystring = require('querystring');
-
 const _ = require('lodash');
 
 const addQueryParams = require('./http-middlewares/before/add-query-params');
-const createJSONtool = require('./tools/create-json-tool');
 const ensureArray = require('./tools/ensure-array');
 const injectInput = require('./http-middlewares/before/inject-input');
 const prepareRequest = require('./http-middlewares/before/prepare-request');
 const throwForStatus = require('./http-middlewares/after/throw-for-status');
 const ZapierPromise = require('./tools/promise');
-const { FORM_TYPE } = require('./tools/http');
 
 const constants = require('./constants');
 
@@ -20,11 +16,12 @@ const executeHttpRequest = (input, options) => {
   return input.z
     .request(options)
     .then(throwForStatus)
-    .then(resp => {
-      if (resp.headers.get('content-type') === FORM_TYPE) {
-        return querystring.parse(resp.content);
+    .then(response => {
+      if (response.data === undefined) {
+        throw new Error(
+          'Response needs to be JSON, form-urlencoded or parsed in middleware.'
+        );
       }
-      return createJSONtool().parse(resp.content);
     });
 };
 
@@ -32,8 +29,8 @@ const executeInputOutputFields = (inputOutputFields, input) => {
   inputOutputFields = ensureArray(inputOutputFields);
 
   return ZapierPromise.all(
-    inputOutputFields.map(
-      field => (_.isFunction(field) ? field(input.z, input.bundle) : field)
+    inputOutputFields.map(field =>
+      _.isFunction(field) ? field(input.z, input.bundle) : field
     )
   ).then(fields => _.flatten(fields));
 };

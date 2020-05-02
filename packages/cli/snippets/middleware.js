@@ -3,22 +3,16 @@ const addHeader = (request, z, bundle) => {
   return request;
 };
 
-const mustBe200 = (response, z, bundle) => {
-  if (response.status !== 200) {
-    throw new z.errors.Error(
-      `Unexpected status code ${response.status}`,
-      'UnexpectedStatus',
-      response.status
-    );
-  }
-  // throw for standard error statuses
-  response.throwForStatus();
+const parseXML = (response, z, bundle) => {
+  // Parse content that is not JSON
+  // eslint-disable-next-line no-undef
+  response.data = xml.parse(response.content);
   return response;
 };
 
 const App = {
   // ...
   beforeRequest: [addHeader],
-  afterResponse: [mustBe200]
+  afterResponse: [parseXML]
   // ...
 };

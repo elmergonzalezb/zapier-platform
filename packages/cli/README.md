@@ -2017,23 +2017,17 @@ const addHeader = (request, z, bundle) => {
   return request;
 };
 
-const mustBe200 = (response, z, bundle) => {
-  if (response.status !== 200) {
-    throw new z.errors.Error(
-      `Unexpected status code ${response.status}`,
-      'UnexpectedStatus',
-      response.status
-    );
-  }
-  // throw for standard error statuses
-  response.throwForStatus();
+const parseXML = (response, z, bundle) => {
+  // Parse content that is not JSON
+  // eslint-disable-next-line no-undef
+  response.data = xml.parse(response.content);
   return response;
 };
 
 const App = {
   // ...
   beforeRequest: [addHeader],
-  afterResponse: [mustBe200]
+  afterResponse: [parseXML]
   // ...
 };
 
@@ -2788,6 +2782,8 @@ Not natively, but it can! Users have reported that the following `npm` modules a
 * [xml2js](https://github.com/Leonidas-from-XIV/node-xml2js)
 * [fast-xml-parser](https://github.com/NaturalIntelligence/fast-xml-parser)
 
+For [shorthand requests](shorthand-http-requests), use an `afterResponse` [middleware](using-http-middleware) that sets `response.json` to the parsed XML:
+
 ```js
 const xml = require('pixl-xml');
 
@@ -2795,7 +2791,7 @@ const App = {
   // ...
   afterResponse: [
     (response, z, bundle) => {
-      response.xml = xml.parse(response.content);
+      response.data = xml.parse(response.content);
       return response;
     }
   ]
